@@ -372,7 +372,7 @@ h1{
       <select id="aisleSelect"></select>
       <button id="addBtn">+</button>
     </div>
-    <p class="hint">New items go straight onto this week's list. Tap any item below to add or remove it from this run.</p>
+    <p class="hint">New items are added to your main list. Tap any item below to add or remove it from this week's run.</p>
 
     <div id="catalogWrap"></div>
 
@@ -551,7 +551,7 @@ async function load(){
 function addItem(){
   const name = itemInput.value.trim();
   if(!name) return;
-  catalog.push({id: uid(), name, aisle: aisleSelect.value, qty:1, inList:true, checked:false});
+  catalog.push({id: uid(), name, aisle: aisleSelect.value, qty:1, inList:false, checked:false});
   itemInput.value='';
   itemInput.focus();
   save();
