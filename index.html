@@ -33,6 +33,7 @@ body{
   color:var(--ink);
   font-family:'DM Sans', sans-serif;
   min-height:100vh;
+  min-height:100dvh;
   display:flex;
   justify-content:center;
 }
@@ -41,9 +42,14 @@ body{
   width:100%;
   max-width:480px;
   min-height:100vh;
+  min-height:100dvh;
   background:var(--paper);
   position:relative;
   padding:28px 20px 40px;
+  padding-top:calc(28px + env(safe-area-inset-top));
+  padding-bottom:calc(40px + env(safe-area-inset-bottom));
+  padding-left:calc(20px + env(safe-area-inset-left));
+  padding-right:calc(20px + env(safe-area-inset-right));
 }
 
 header{
@@ -223,7 +229,7 @@ h1{
 
 .go-shop-wrap{
   position:sticky;
-  bottom:16px;
+  bottom:calc(16px + env(safe-area-inset-bottom));
   margin-top:24px;
 }
 .go-shop-btn{
