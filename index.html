@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Grocery Run</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#C1622D">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Grocery Run">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=DM+Sans:wght@400;500;700&display=swap');
+
+:root{
+  --paper:#F6F1E6;
+  --paper-dim:#EEE7D6;
+  --ink:#2B2A26;
+  --ink-soft:#6B6558;
+  --sage:#6E8763;
+  --sage-dark:#4F6647;
+  --rust:#C1622D;
+  --line:#D8D0BC;
+  --gold:#D9A441;
+}
+
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'DM Sans', sans-serif;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+}
+
+.app{
+  width:100%;
+  max-width:480px;
+  min-height:100vh;
+  background:var(--paper);
+  position:relative;
+  padding:28px 20px 40px;
+}
+
+header{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  margin-bottom:6px;
+}
+
+h1{
+  font-family:'Fraunces', serif;
+  font-weight:600;
+  font-size:32px;
+  margin:0;
+  letter-spacing:-0.5px;
+}
+
+.tagline{
+  font-size:13px;
+  color:var(--ink-soft);
+  margin:0 0 22px;
+  font-style:italic;
+  font-family:'Fraunces', serif;
+}
+
+.tabs{
+  display:flex;
+  gap:8px;
+  margin-bottom:20px;
+}
+.tab-btn{
+  flex:1;
+  padding:10px 0;
+  border:1px solid var(--line);
+  background:transparent;
+  border-radius:999px;
+  font-family:'DM Sans', sans-serif;
+  font-weight:700;
+  font-size:13px;
+  color:var(--ink-soft);
+  cursor:pointer;
+  transition:all .15s ease;
+}
+.tab-btn.active{
+  background:var(--ink);
+  color:var(--paper);
+  border-color:var(--ink);
+}
+
+/* ---- Main list view ---- */
+.add-row{
+  display:flex;
+  gap:8px;
+  margin-bottom:8px;
+}
+#itemInput{
+  flex:1;
+  padding:12px 14px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  font-size:15px;
+  font-family:'DM Sans', sans-serif;
+  background:#fff;
+  color:var(--ink);
+}
+#itemInput:focus{outline:none; border-color:var(--sage);}
+
+#aisleSelect{
+  padding:12px 10px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  font-size:13px;
+  font-family:'DM Sans', sans-serif;
+  background:#fff;
+  color:var(--ink);
+  max-width:130px;
+}
+
+#addBtn{
+  padding:0 18px;
+  border:none;
+  border-radius:10px;
+  background:var(--sage);
+  color:#fff;
+  font-weight:700;
+  font-size:20px;
+  cursor:pointer;
+  line-height:1;
+}
+#addBtn:active{background:var(--sage-dark);}
+
+.hint{
+  font-size:12px;
+  color:var(--ink-soft);
+  margin:0 0 18px;
+}
+
+.aisle-group{
+  margin-bottom:20px;
+}
+.aisle-heading{
+  font-family:'Fraunces', serif;
+  font-weight:600;
+  font-size:16px;
+  color:var(--sage-dark);
+  margin:0 0 6px;
+  padding-bottom:6px;
+  border-bottom:2px solid var(--sage);
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.catalog-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:11px 2px;
+  border-bottom:1px dashed var(--line);
+}
+.catalog-left{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex:1;
+  cursor:pointer;
+}
+.checkbox{
+  width:24px;
+  height:24px;
+  min-width:24px;
+  border-radius:7px;
+  border:2px solid var(--sage);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:all .15s ease;
+}
+.checkbox svg{
+  width:14px;
+  height:14px;
+  opacity:0;
+  transition:opacity .1s ease;
+}
+.catalog-item.selected .checkbox{background:var(--sage);}
+.catalog-item.selected .checkbox svg{opacity:1;}
+.catalog-item .name{font-size:15px;}
+.catalog-item.selected .name{color:var(--sage-dark); font-weight:700;}
+.qty{
+  font-size:12px;
+  color:var(--ink-soft);
+  margin-left:6px;
+  font-weight:700;
+}
+
+.remove-btn{
+  background:none;
+  border:none;
+  color:var(--rust);
+  font-size:16px;
+  cursor:pointer;
+  padding:4px 8px;
+  opacity:.55;
+}
+
+.empty-state{
+  text-align:center;
+  padding:50px 20px;
+  color:var(--ink-soft);
+}
+.empty-state .big{
+  font-family:'Fraunces', serif;
+  font-size:20px;
+  color:var(--ink);
+  margin-bottom:6px;
+}
+
+.go-shop-wrap{
+  position:sticky;
+  bottom:16px;
+  margin-top:24px;
+}
+.go-shop-btn{
+  width:100%;
+  padding:16px;
+  border:none;
+  border-radius:14px;
+  background:var(--rust);
+  color:#fff;
+  font-weight:700;
+  font-size:15px;
+  font-family:'DM Sans', sans-serif;
+  cursor:pointer;
+  box-shadow:0 6px 16px rgba(193,98,45,0.3);
+}
+.go-shop-btn:disabled{
+  background:var(--line);
+  color:var(--ink-soft);
+  box-shadow:none;
+  cursor:not-allowed;
+}
+
+/* ---- Shop view ---- */
+.progress-wrap{
+  margin-bottom:22px;
+}
+.progress-label{
+  display:flex;
+  justify-content:space-between;
+  font-size:12px;
+  color:var(--ink-soft);
+  margin-bottom:6px;
+  font-weight:700;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.progress-track{
+  height:8px;
+  background:var(--paper-dim);
+  border-radius:99px;
+  overflow:hidden;
+  border:1px solid var(--line);
+}
+.progress-fill{
+  height:100%;
+  background:var(--sage);
+  border-radius:99px;
+  transition:width .25s ease;
+  width:0%;
+}
+
+.shop-item{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:12px 4px;
+  border-bottom:1px dashed var(--line);
+  cursor:pointer;
+  user-select:none;
+}
+.shop-item.checked .checkbox{background:var(--sage);}
+.shop-item.checked .checkbox svg{opacity:1;}
+.shop-item.checked .name{
+  color:var(--ink-soft);
+  text-decoration:line-through;
+  text-decoration-color:var(--rust);
+}
+.shop-item .name{font-size:15.5px; transition:color .15s ease;}
+
+.footer-actions{
+  display:flex;
+  gap:10px;
+  margin-top:28px;
+}
+.ghost-btn{
+  flex:1;
+  padding:13px;
+  border:1px solid var(--line);
+  background:transparent;
+  border-radius:12px;
+  font-weight:700;
+  font-size:13px;
+  color:var(--ink-soft);
+  cursor:pointer;
+  font-family:'DM Sans', sans-serif;
+}
+
+.done-banner{
+  text-align:center;
+  padding:26px 16px;
+  background:rgba(110,135,99,0.12);
+  border-radius:14px;
+  margin-bottom:20px;
+}
+.done-banner .big{
+  font-family:'Fraunces', serif;
+  font-size:20px;
+  color:var(--sage-dark);
+}
+
+.hidden{display:none !important;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <h1>Grocery Run</h1>
+  </header>
+  <p class="tagline">tick it, shop it</p>
+
+  <div class="tabs">
+    <button class="tab-btn active" id="tabMain">Main List</button>
+    <button class="tab-btn" id="tabShop">Shop</button>
+  </div>
+
+  <!-- MAIN LIST VIEW -->
+  <div id="mainView">
+    <div class="add-row">
+      <input type="text" id="itemInput" placeholder="Add a new item…" autocomplete="off">
+      <select id="aisleSelect"></select>
+      <button id="addBtn">+</button>
+    </div>
+    <p class="hint">New items go straight onto this week's list. Tap any item below to add or remove it from this run.</p>
+
+    <div id="catalogWrap"></div>
+
+    <div id="emptyState" class="empty-state hidden">
+      <div class="big">Your main list is empty</div>
+      <div>Add a few items above — they'll stay here for next time too.</div>
+    </div>
+
+    <div class="go-shop-wrap">
+      <button class="go-shop-btn" id="goShopBtn" disabled>Start Shopping →</button>
+    </div>
+  </div>
+
+  <!-- SHOP VIEW -->
+  <div id="shopView" class="hidden">
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span id="progressText">0 of 0 collected</span>
+        <span id="progressPct">0%</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <div id="doneBanner" class="done-banner hidden">
+      <div class="big">🎉 Trolley's full!</div>
+      <div>Everything's ticked off.</div>
+    </div>
+
+    <div id="aisleGroups"></div>
+
+    <div class="footer-actions">
+      <button class="ghost-btn" id="backToListBtn">← Edit List</button>
+      <button class="ghost-btn" id="newRunBtn">Shop Done</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const AISLES = ["Fruit & Veg","Bakery","Meat & Deli","Pantry","Drinks","Household & Other","Dairy & Eggs","Freezer"];
+const STORAGE_KEY = "grocery-catalog";
+
+// catalog: the master list, persists across runs
+// {id, name, aisle, inList, checked}
+let catalog = [];
+
+const DEFAULT_ITEMS = [
+  // Fruit & Veg
+  ["Bananas","Fruit & Veg",1],
+  ["Capsicum Green","Fruit & Veg",1],
+  ["Capsicum Red","Fruit & Veg",2],
+  ["Cherry Tomatoes 250g","Fruit & Veg",1],
+  ["Cos Lettuce 2 Pack","Fruit & Veg",1],
+  ["Lebanese Cucumbers Loose","Fruit & Veg",1],
+  ["Salad Leaf Mix 300g","Fruit & Veg",1],
+  ["Spudlite Potatoes 1.5kg","Fruit & Veg",1],
+  // Meat & Deli
+  ["Beef chuck","Meat & Deli",1],
+  ["Beef Mince 500g","Meat & Deli",2],
+  ["Brisket","Meat & Deli",1],
+  ["Chicken Breast Value Pack","Meat & Deli",1],
+  ["Free Range Marinated Chicken Breast","Meat & Deli",1],
+  ["Short Cut Bacon 500g","Meat & Deli",1],
+  ["Leg Ham Thinly Sliced 4 Pack 400g","Meat & Deli",1],
+  // Bakery
+  ["DIEGO'S Street Tacos 10 Pack 300g","Bakery",1],
+  ["Large White Wraps 8 Pack 560g","Bakery",1],
+  ["Turkish Rolls 4 Pack 400g","Bakery",1],
+  ["White Extra Soft Bread Rolls 6 Pack 450g","Bakery",1],
+  // Pantry
+  ["Apple Cider Vinegar","Pantry",1],
+  ["Baked Beans","Pantry",1],
+  ["BAKERS LIFE Lower Carb Higher Protein Bread 600g","Pantry",1],
+  ["Coconut Milk Light 400ml","Pantry",1],
+  ["Dijon Mustard","Pantry",1],
+  ["English Muffins 6 Pack 400g","Pantry",1],
+  ["Evaporated Milk","Pantry",1],
+  ["Extra Virgin Olive Oil Spray 225g","Pantry",1],
+  ["Green Curry Simmer Sauce 500g","Pantry",1],
+  ["Killer Coffee Co Beans Darkerside","Pantry",1],
+  ["LA COSTENA Chipotle in Adobo Sauce 230g","Pantry",1],
+  ["Light Tasty Shredded Cheese 500g","Pantry",1],
+  ["Pasta Penne 500g","Pantry",1],
+  ["Premium Carbonara Pasta Sauce 500g","Pantry",1],
+  ["Protein Bars Salted Caramel","Pantry",1],
+  ["Salted Popcorn Multipack 10 Pack 200g","Pantry",1],
+  ["Sanitarium Weet-bix Bites Wild Berry Breakfast Cereal","Pantry",1],
+  ["Tomato Sauce 2L","Pantry",1],
+  ["Wheat Biscuits Value Pack 1.12kg","Pantry",1],
+  ["Worcestershire Sauce","Pantry",1],
+  // Drinks
+  ["Dr Pepper","Drinks",1],
+  // Household & Other
+  ["Bath & Shower Cleaner 750ml","Household & Other",1],
+  ["Flushable Wipes 40 Pack","Household & Other",1],
+  ["POWER FORCE Assorted Genie Wand Accessories","Household & Other",1],
+  ["Thick Sponges 4 Pack","Household & Other",1],
+  ["Toilet Blocks 2 Pack 2x50g","Household & Other",1],
+  ["Toilet Tissue 3 Ply 24 Pack","Household & Other",1],
+  ["Body Wash","Household & Other",1],
+  ["HEDAFEN Ibuprofen Tablets 24 Pack 200mg","Household & Other",1],
+  ["HEDANOL Paracetamol Tablet 16 Pack","Household & Other",1],
+  ["Tissues 2ply 224 Pack","Household & Other",1],
+  ["Vitamins B+C Effervescent Tablets 15 Pack","Household & Other",1],
+  // Dairy & Eggs
+  ["Brancourts Low Fat Cottage Cheese 200g","Dairy & Eggs",1],
+  ["Butter 250g","Dairy & Eggs",2],
+  ["COLWAY Smokey Chipotle Mayonnaise 252g","Dairy & Eggs",1],
+  ["Cottage Cheese 500g","Dairy & Eggs",1],
+  ["Greek Style Strained Yogurt Plain 900g","Dairy & Eggs",1],
+  ["Milk 3L","Dairy & Eggs",1],
+  ["Parmesan Cheese Block 200g","Dairy & Eggs",1],
+  ["Pauls Plus Chocolate Yoghurt","Dairy & Eggs",2],
+  ["Pauls Plus Protein Chocolate Dessert","Dairy & Eggs",1],
+  ["Pauls Plus Protein Yoghurt Pouch Lemon Cheesecake","Dairy & Eggs",2],
+  ["Pizza Shredded Cheese 500g","Dairy & Eggs",1],
+  ["Tasty Cheese Slices 500g","Dairy & Eggs",1],
+  ["WICKED SISTER Banana Pudding 170g","Dairy & Eggs",3],
+  ["WICKED SISTER Chocolate Pudding 170g","Dairy & Eggs",3],
+  ["YOGURI Protein Yogurt Salted Caramel 160g","Dairy & Eggs",5],
+  ["YOGURI Protein Yogurt Vanilla 160g","Dairy & Eggs",5],
+  ["Eggs 700g","Dairy & Eggs",1],
+  // Freezer
+  ["Chicken Breast Tenders Southern Style 1kg","Freezer",1],
+  ["Winter Vegetables 1kg","Freezer",1]
+];
+
+const itemInput = document.getElementById('itemInput');
+const aisleSelect = document.getElementById('aisleSelect');
+const addBtn = document.getElementById('addBtn');
+const catalogWrap = document.getElementById('catalogWrap');
+const emptyState = document.getElementById('emptyState');
+const goShopBtn = document.getElementById('goShopBtn');
+const tabMain = document.getElementById('tabMain');
+const tabShop = document.getElementById('tabShop');
+const mainView = document.getElementById('mainView');
+const shopView = document.getElementById('shopView');
+const aisleGroups = document.getElementById('aisleGroups');
+const progressFill = document.getElementById('progressFill');
+const progressText = document.getElementById('progressText');
+const progressPct = document.getElementById('progressPct');
+const doneBanner = document.getElementById('doneBanner');
+const backToListBtn = document.getElementById('backToListBtn');
+const newRunBtn = document.getElementById('newRunBtn');
+
+AISLES.forEach(a=>{
+  const opt = document.createElement('option');
+  opt.value = a; opt.textContent = a;
+  aisleSelect.appendChild(opt);
+});
+
+function uid(){ return Math.random().toString(36).slice(2,9); }
+
+async function save(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(catalog));
+  }catch(e){ console.error('Save failed', e); }
+}
+
+async function load(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      catalog = JSON.parse(raw);
+    }
+  }catch(e){
+    catalog = [];
+  }
+  if(catalog.length===0){
+    catalog = DEFAULT_ITEMS.map(([name,aisle,qty])=>({id:uid(),name,aisle,qty,inList:false,checked:false}));
+    await save();
+  }
+  renderMain();
+}
+
+function addItem(){
+  const name = itemInput.value.trim();
+  if(!name) return;
+  catalog.push({id: uid(), name, aisle: aisleSelect.value, qty:1, inList:true, checked:false});
+  itemInput.value='';
+  itemInput.focus();
+  save();
+  renderMain();
+}
+
+function removeFromCatalog(id){
+  catalog = catalog.filter(i=>i.id!==id);
+  save();
+  renderMain();
+}
+
+function toggleInList(id){
+  const item = catalog.find(i=>i.id===id);
+  if(!item) return;
+  item.inList = !item.inList;
+  if(!item.inList) item.checked = false;
+  save();
+  renderMain();
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function renderMain(){
+  catalogWrap.innerHTML='';
+  const selectedCount = catalog.filter(i=>i.inList).length;
+
+  if(catalog.length===0){
+    emptyState.classList.remove('hidden');
+  }else{
+    emptyState.classList.add('hidden');
+  }
+  goShopBtn.disabled = selectedCount===0;
+  goShopBtn.textContent = selectedCount===0 ? "Start Shopping →" : `Start Shopping (${selectedCount}) →`;
+
+  AISLES.forEach(aisle=>{
+    const groupItems = catalog.filter(i=>i.aisle===aisle);
+    if(groupItems.length===0) return;
+    const wrap = document.createElement('div');
+    wrap.className='aisle-group';
+    wrap.innerHTML = `<div class="aisle-heading">${escapeHtml(aisle)}</div>`;
+    groupItems.forEach(item=>{
+      const row = document.createElement('div');
+      row.className='catalog-item' + (item.inList ? ' selected':'');
+      row.innerHTML = `
+        <div class="catalog-left" data-id="${item.id}">
+          <div class="checkbox">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </div>
+          <span class="name">${escapeHtml(item.name)}${item.qty>1?`<span class="qty">×${item.qty}</span>`:''}</span>
+        </div>
+        <button class="remove-btn" data-remove="${item.id}">✕</button>
+      `;
+      wrap.appendChild(row);
+    });
+    catalogWrap.appendChild(wrap);
+  });
+
+  catalogWrap.querySelectorAll('.catalog-left').forEach(el=>{
+    el.addEventListener('click', ()=> toggleInList(el.dataset.id));
+  });
+  catalogWrap.querySelectorAll('[data-remove]').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      removeFromCatalog(btn.dataset.remove);
+    });
+  });
+}
+
+function renderShop(){
+  aisleGroups.innerHTML='';
+  const active = catalog.filter(i=>i.inList);
+  const total = active.length;
+  const checkedCount = active.filter(i=>i.checked).length;
+  const pct = total===0 ? 0 : Math.round((checkedCount/total)*100);
+  progressFill.style.width = pct+'%';
+  progressText.textContent = `${checkedCount} of ${total} collected`;
+  progressPct.textContent = pct+'%';
+  doneBanner.classList.toggle('hidden', !(total>0 && checkedCount===total));
+
+  AISLES.forEach(aisle=>{
+    const groupItems = active.filter(i=>i.aisle===aisle);
+    if(groupItems.length===0) return;
+    const wrap = document.createElement('div');
+    wrap.className='aisle-group';
+    const collectedInGroup = groupItems.filter(i=>i.checked).length;
+    wrap.innerHTML = `<div class="aisle-heading">${escapeHtml(aisle)} <span style="font-family:'DM Sans',sans-serif;font-weight:400;font-size:11px;color:var(--ink-soft);">(${collectedInGroup}/${groupItems.length})</span></div>`;
+    groupItems.forEach(item=>{
+      const row = document.createElement('div');
+      row.className='shop-item' + (item.checked ? ' checked':'');
+      row.dataset.id = item.id;
+      row.innerHTML = `
+        <div class="checkbox">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </div>
+        <span class="name">${escapeHtml(item.name)}${item.qty>1?`<span class="qty">×${item.qty}</span>`:''}</span>
+      `;
+      row.addEventListener('click', ()=>{
+        item.checked = !item.checked;
+        save();
+        renderShop();
+      });
+      wrap.appendChild(row);
+    });
+    aisleGroups.appendChild(wrap);
+  });
+}
+
+function showMain(){
+  mainView.classList.remove('hidden');
+  shopView.classList.add('hidden');
+  tabMain.classList.add('active');
+  tabShop.classList.remove('active');
+  renderMain();
+}
+function showShop(){
+  mainView.classList.add('hidden');
+  shopView.classList.remove('hidden');
+  tabMain.classList.remove('active');
+  tabShop.classList.add('active');
+  renderShop();
+}
+
+addBtn.addEventListener('click', addItem);
+itemInput.addEventListener('keydown', e=>{ if(e.key==='Enter') addItem(); });
+goShopBtn.addEventListener('click', showShop);
+backToListBtn.addEventListener('click', showMain);
+tabMain.addEventListener('click', showMain);
+tabShop.addEventListener('click', ()=>{ if(catalog.some(i=>i.inList)) showShop(); });
+newRunBtn.addEventListener('click', async ()=>{
+  if(confirm("Reset the list? This will unselect and uncheck everything ready for next time.")){
+    catalog.forEach(i=>{ i.inList=false; i.checked=false; });
+    await save();
+  }
+  showMain();
+});
+
+load();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
