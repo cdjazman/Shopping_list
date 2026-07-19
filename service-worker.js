@@ -1,4 +1,4 @@
-const CACHE_NAME = "grocery-run-v7";
+const CACHE_NAME = "grocery-run-v9";
 const ASSETS = [
   "./index.html",
   "./manifest.json",
@@ -31,6 +31,9 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
+  if (event.request.url.includes("api.github.com")) {
+    return; // let sync requests go straight to the network, uncached
+  }
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
